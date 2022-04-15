@@ -1,18 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class TinyParticle : MonoBehaviour
+public class TinyParticle : MonoBehaviour, IPointerDownHandler
 {
     // DATA //
-    // External Data
-    public Gradient massColourGradient;
+    // Data
+    public Gradient trailDefault;
+    public Gradient trailSelected;
+
+    // Properties
+    public Vector2 Velocity { get { return currentVelocity; } }
 
     // Cached Data
     private Vector2 currentVelocity;
     private TinyPlanet manager;
     private List<TinyPlanet> attractingBodies;
     private bool canMove = false;
+    private TinyParticlesSimManager ui;
+    private Vector2 startVelocity;
+    private float startOrbit;
+    private TrailRenderer trail;
 
 
     // FUNCTIONS //
@@ -20,7 +29,15 @@ public class TinyParticle : MonoBehaviour
     private void Awake()
     {
         attractingBodies = new List<TinyPlanet>(FindObjectsOfType<TinyPlanet>());
+        trail = GetComponent<TrailRenderer>();
+        SetTrailDefault();
     }
+
+    public void OnPointerDown(PointerEventData clickData)
+    {
+        ui.OpenInfoDisplay(startVelocity, startOrbit, this);
+    }
+
 
     // Movement Functions
     private void MoveParticle(Vector3 velocity, float deltaTime)
@@ -65,14 +82,16 @@ public class TinyParticle : MonoBehaviour
     }
 
     // Management Functions
-    public void SetupParticle(TinyPlanet newManager)
+    public void SetupParticle(TinyPlanet newManager, TinyParticlesSimManager uiReference, float orbitAtStart)
     {
         // Caches required data
         manager = newManager;
+        ui = uiReference;
 
         // Starts moving!
         canMove = true;
         currentVelocity = Vector2.zero;
+        startOrbit = orbitAtStart;
     }
 
     public void AddInstantAcceleration(Vector2 acceleration)
@@ -88,5 +107,20 @@ public class TinyParticle : MonoBehaviour
     public void RemoveAttractingBody(TinyPlanet body)
     {
         attractingBodies.Remove(body);
+    }
+
+    public void CacheStartVelocity()
+    {
+        startVelocity = currentVelocity;
+    }
+
+    public void SetTrailDefault()
+    {
+        trail.colorGradient = trailDefault;
+    }
+
+    public void SetTrailSelected()
+    {
+        trail.colorGradient = trailSelected;
     }
 }

@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class TinyPlanet : MonoBehaviour
+public class TinyPlanet : MonoBehaviour, IPointerDownHandler
 {
     // DATA //
     // Particle Setup
@@ -24,6 +25,9 @@ public class TinyPlanet : MonoBehaviour
     private int totalSpawned = 0;
     private List<TinyPlanet> allPlanets;
     private List<TinyParticle> particlesToRemove;
+    private TinyParticlesSimManager ui;
+    private bool isDraggingPlanet = false;
+    private Camera mainCamera;
 
 
     // FUNCTIONS //
@@ -50,6 +54,11 @@ public class TinyPlanet : MonoBehaviour
         {
             planet.AddNewPlanet(this);
         }
+
+        // Finds some required objects
+        ui = FindObjectOfType<TinyParticlesSimManager>();
+        mainCamera = Camera.main;
+
     }
 
     private void FixedUpdate()
@@ -65,8 +74,9 @@ public class TinyPlanet : MonoBehaviour
                 {
                     GameObject spawnedParticleObject = Instantiate(tinyParticlePrefab, transform.position+(Vector3)Random.insideUnitCircle.normalized*startOrbit, transform.rotation);
                     TinyParticle spawnedParticle = spawnedParticleObject.GetComponent<TinyParticle>();
-                    spawnedParticle.SetupParticle(this);
+                    spawnedParticle.SetupParticle(this, ui, (spawnedParticle.transform.position-transform.position).magnitude);
                     spawnedParticle.AddInstantAcceleration(Random.insideUnitCircle.normalized * Random.Range(0.0f, startSpeedMax));
+                    spawnedParticle.CacheStartVelocity();
 
                     particles.Add(spawnedParticle);
                     particlesSpawned++;
@@ -111,6 +121,29 @@ public class TinyPlanet : MonoBehaviour
 
         // Updates timing of creation and min/max distances
         UpdateCreationTiming();
+    }
+
+    private void Update()
+    {
+        // If dragging, checks if needs to stop or move planet
+        if (isDraggingPlanet)
+        {
+            if (Input.GetMouseButtonUp(0))
+            {
+                isDraggingPlanet = false;
+            }
+            else
+            {
+                transform.position = (Vector2)mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            }
+        }
+    }
+
+    public void OnPointerDown(PointerEventData clickData)
+    {
+        // Starts dragging
+        Debug.Log("Clicked Planet!");
+        isDraggingPlanet = true;
     }
 
 
