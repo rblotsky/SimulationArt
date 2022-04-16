@@ -66,14 +66,15 @@ public class TinyParticle : MonoBehaviour, IPointerDownHandler
                 {
                     currentVelocity += (Vector2)(attractor.transform.position - transform.position).normalized * MathFunctions.CalculateGravityAcceleration(1, attractor.managerMass, attractorSqrDist);
                 }
+            }
 
-                // Removes if square distance is too high or too low
-                if (attractorSqrDist > attractor.deletionDistance * attractor.deletionDistance || attractorSqrDist < attractor.crashDistance * attractor.crashDistance)
-                {
-                    manager.RemoveParticleFromManager(this);
-                    Destroy(gameObject);
-                    return;
-                }
+            // Removes if square distance from manager is too high or too low
+            float managerSqrDist = (manager.transform.position-transform.position).sqrMagnitude;
+            if (managerSqrDist > manager.deletionDistance * manager.deletionDistance || managerSqrDist < manager.crashDistance * manager.crashDistance)
+            {
+                manager.RemoveParticleFromManager(this);
+                Destroy(gameObject);
+                return;
             }
 
             // Moves according to current velocity and fixeddeltatime
