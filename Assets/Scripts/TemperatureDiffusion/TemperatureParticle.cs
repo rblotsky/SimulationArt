@@ -9,9 +9,9 @@ public class TemperatureParticle : MonoBehaviour
 
     // Cached data
     private float spreadDistance = 5;
-    private float currentEnergy = 0;
+    public float currentEnergy = 0;
     private float heatCapacity = 1;
-    private float newEnergy;
+    private float newEnergy = 0;
     private SpriteRenderer spriteRenderer;
 
     // Properties
@@ -56,6 +56,9 @@ public class TemperatureParticle : MonoBehaviour
         // This function caches the energy to set to on the next frame. The energy has to be cached and set later to ensure that
         // one particle doesn't update its energy before others have time to calculate their new energy.
 
+        // Updates newEnergy to be equal to currentEnergy
+        newEnergy = currentEnergy;
+
         // Finds nearby particles
         Collider2D[] nearbyColliders = Physics2D.OverlapCircleAll(transform.position, spreadDistance);
 
@@ -76,7 +79,7 @@ public class TemperatureParticle : MonoBehaviour
     public void UpdateCurrentEnergy()
     {
         // First clamps energy to within allowed range
-        newEnergy = Mathf.Clamp(newEnergy, MIN_TEMPERATURE, MAX_TEMPERATURE);
+        newEnergy = Mathf.Max(newEnergy, 0);
 
         // Sets the current energy to equal the new one (should have been cached just before this runs).
         currentEnergy = newEnergy;
@@ -87,6 +90,10 @@ public class TemperatureParticle : MonoBehaviour
     // Internal Management
     private void UpdateParticleColour()
     {
+        if (Temperature != 0)
+        {
+            Debug.Log("Temperature = " + Temperature);
+        }
         spriteRenderer.color = colourGradient.Evaluate(Temperature / MAX_TEMPERATURE);
     }
 }
