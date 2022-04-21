@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2217970389121846087}
   - component: {fileID: 3472780776996473258}
   m_Layer: 0
-  m_Name: TinyParticle
+  m_Name: TinyParticlePrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

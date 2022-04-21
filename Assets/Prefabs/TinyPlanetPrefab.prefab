@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4223666751857896204}
   - component: {fileID: -7975948007842945089}
   m_Layer: 0
-  m_Name: TinyPlanet
+  m_Name: TinyPlanetPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
