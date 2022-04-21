@@ -142,7 +142,6 @@ public class TinyPlanet : MonoBehaviour, IPointerDownHandler
     public void OnPointerDown(PointerEventData clickData)
     {
         // Starts dragging
-        Debug.Log("Clicked Planet!");
         isDraggingPlanet = true;
     }
 

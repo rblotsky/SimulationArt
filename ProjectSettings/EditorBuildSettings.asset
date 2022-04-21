@@ -8,4 +8,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TinySatellitesScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/MainMenuScene.unity
+    guid: c16a8915429bbde4cb9aa8985078f50a
+  - enabled: 1
+    path: Assets/Scenes/TemperatureDiffusionScene.unity
+    guid: 2eebc604618efdb4d8a36b61dcac75bc
   m_configObjects: {}

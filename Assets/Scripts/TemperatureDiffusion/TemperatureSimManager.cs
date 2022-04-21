@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 public class TemperatureSimManager : MonoBehaviour
 {
@@ -57,21 +58,14 @@ public class TemperatureSimManager : MonoBehaviour
         // Calculates new temperatures for all particles
         foreach(TemperatureParticle particle in allParticles)
         {
-            particle.CacheNewEnergy(Time.deltaTime);
+            particle.UpdateEnergy(Time.deltaTime);
+            particle.UpdateParticleData(heatCapacity, spreadDistance);
         }
 
         // If the user clicks anywhere, adds energy to all particles within radius
-        // This is done before updating currentEnergy so the change won't be overwritten but after caching so it isn't used in calculation
-        if(Input.GetMouseButtonDown(0))
+        if(Input.GetMouseButton(0))
         {
             AddEnergyAtPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-        }
-
-        // Updates temperatures for all particles, updates their properties
-        foreach(TemperatureParticle particle in allParticles)
-        {
-            particle.UpdateCurrentEnergy();
-            particle.UpdateParticleData(heatCapacity, spreadDistance);
         }
     }
 
@@ -87,11 +81,11 @@ public class TemperatureSimManager : MonoBehaviour
 
     public void SpawnNewParticle()
     {
+        // Finds a random position in the spawn box
         GameObject spawnedObj = Instantiate(particlePrefab, MathFunctions.RandomPointInBounds(spawnBox.bounds), particlePrefab.transform.rotation, spawnBox.transform);
         TemperatureParticle particleRef = spawnedObj.GetComponent<TemperatureParticle>();
         allParticles.Add(particleRef);
         particleRef.AddRawEnergy(startEnergy);
-        particleRef.UpdateCurrentEnergy();
     }
 
 
@@ -100,6 +94,11 @@ public class TemperatureSimManager : MonoBehaviour
     {
         addedEnergyAmount = amountSlider.value;
     }
+
+    public void ModifyParticleAmount(Slider amountSlider)
+    {
+        requiredParticleCount = (int)amountSlider.value;
+    }    
 
     public void AddEnergyAtPosition(Vector2 worldPos)
     {

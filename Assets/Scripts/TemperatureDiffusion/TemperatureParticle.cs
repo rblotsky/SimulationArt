@@ -11,7 +11,6 @@ public class TemperatureParticle : MonoBehaviour
     private float spreadDistance = 5;
     public float currentEnergy = 0;
     private float heatCapacity = 1;
-    private float newEnergy = 0;
     private SpriteRenderer spriteRenderer;
 
     // Properties
@@ -25,8 +24,8 @@ public class TemperatureParticle : MonoBehaviour
 
     // Constants
     public static readonly float PARTICLE_MASS = 1;
-    public static readonly float MAX_TEMPERATURE = 1000;
-    public static readonly float MIN_TEMPERATURE = 0;
+    public static readonly float MAX_ENERGY = 1000;
+    public static readonly float MIN_ENERGY = 0;
     public static readonly float BOLTZMANN_CONSTANT = 1;
 
 
@@ -42,7 +41,7 @@ public class TemperatureParticle : MonoBehaviour
     // Particle Management
     public void AddRawEnergy(float addedEnergy)
     {
-        newEnergy += addedEnergy;
+        currentEnergy = Mathf.Clamp(currentEnergy+addedEnergy, MIN_ENERGY, MAX_ENERGY);
     }
 
     public void UpdateParticleData(float newHeatCapacity, float newSpreadDistance)
@@ -51,13 +50,10 @@ public class TemperatureParticle : MonoBehaviour
         spreadDistance = newSpreadDistance;
     }
 
-    public void CacheNewEnergy(float deltaTime)
+    public void UpdateEnergy(float deltaTime)
     {
         // This function caches the energy to set to on the next frame. The energy has to be cached and set later to ensure that
         // one particle doesn't update its energy before others have time to calculate their new energy.
-
-        // Updates newEnergy to be equal to currentEnergy
-        newEnergy = currentEnergy;
 
         // Finds nearby particles
         Collider2D[] nearbyColliders = Physics2D.OverlapCircleAll(transform.position, spreadDistance);
@@ -70,19 +66,15 @@ public class TemperatureParticle : MonoBehaviour
             if(particle != null && particle != this)
             {
                 // Calculates energy transferred
-                float energyTransfer = BOLTZMANN_CONSTANT * (particle.Temperature-Temperature) * (1); // The 1 at the end should be replaced by area that heat is being radiated at? Or use conduction formula in order to include distance
-                newEnergy += energyTransfer*deltaTime;
+                if(particle.Temperature-Temperature > 999 || particle.Temperature - Temperature < -999)
+                {
+                    Debug.Log("AAAAAAAAAAAAAAAA! Other = " + particle.Temperature + ", This = " + Temperature);
+                }
+                float energyTransfer = BOLTZMANN_CONSTANT * (particle.Temperature - Temperature);
+                currentEnergy += energyTransfer*deltaTime;
             }
         }
-    }
 
-    public void UpdateCurrentEnergy()
-    {
-        // First clamps energy to within allowed range
-        newEnergy = Mathf.Max(newEnergy, 0);
-
-        // Sets the current energy to equal the new one (should have been cached just before this runs).
-        currentEnergy = newEnergy;
         UpdateParticleColour();
     }
 
@@ -90,10 +82,6 @@ public class TemperatureParticle : MonoBehaviour
     // Internal Management
     private void UpdateParticleColour()
     {
-        if (Temperature != 0)
-        {
-            Debug.Log("Temperature = " + Temperature);
-        }
-        spriteRenderer.color = colourGradient.Evaluate(Temperature / MAX_TEMPERATURE);
+        spriteRenderer.color = colourGradient.Evaluate(Temperature / MAX_ENERGY);
     }
 }
